@@ -149,12 +149,13 @@ loop
 		;BL	WAIT
 		
 		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
+		b ReadState
 loop2
-		b ReadState2
 		BL	MOTEUR_DROIT_OFF    ; MOTEUR_DROIT_INVERSE
+		b ReadState2
 		b loop2
 
-		b	loop
+		b loop
 
 		;; Boucle d'attante
 WAIT	ldr r1, =0xAFFFFF 
@@ -166,14 +167,15 @@ wait1	subs r1, #1
 
 ReadState
 		ldr r10,[r8]
-		CMP r10,#0x02							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BNE ReadState
-		b loop2
+		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
+		BEQ loop2
+		b loop
 
 ReadState2
 		ldr r10,[r8]
 		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
 		BNE ReadState2
+		BL	MOTEUR_DROIT_ON
 		b loop
 
 		
