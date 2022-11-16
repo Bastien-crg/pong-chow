@@ -168,7 +168,14 @@ wait1	subs r1, #1
 ReadState
 		ldr r10,[r8]
 		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BEQ loop2
+		BNE loop
+		BL	MOTEUR_DROIT_ARRIERE	   
+		BL	MOTEUR_GAUCHE_ARRIERE
+		BL WAIT
+		BL	MOTEUR_DROIT_OFF	   
+		BL	MOTEUR_GAUCHE_AVANT
+		BL WAIT
+		BL  MOTEUR_DROIT_ON
 		b loop
 
 ReadState2
