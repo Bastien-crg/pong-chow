@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Projet final.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Projet final.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Wed Nov 16 11:51:42 2022
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Sat Nov 19 14:57:36 2022
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -24,6 +24,9 @@ Functions with no stack information
  <LI><a href="#[1f]">MOTEUR_DROIT_INVERSE</a>
  <LI><a href="#[20]">MOTEUR_GAUCHE_INVERSE</a>
  <LI><a href="#[15]">__main</a>
+ <LI><a href="#[22]">BUMPERS_INIT</a>
+ <LI><a href="#[23]">SWITCHERS_INIT</a>
+ <LI><a href="#[21]">LED_INIT</a>
 </UL>
 </UL>
 <P>
@@ -119,7 +122,10 @@ Global Symbols
 <P><STRONG><a name="[20]"></a>MOTEUR_GAUCHE_INVERSE</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config moteur.o(.text), UNUSED, KEPT)
 
 <P><STRONG><a name="[15]"></a>__main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, prise en main moteur.o(.text))
-<BR><BR>[Calls]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOTEUR_GAUCHE_AVANT
+<BR><BR>[Calls]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SWITCHERS_INIT
+<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_INIT
+<LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BUMPERS_INIT
+<LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOTEUR_GAUCHE_AVANT
 <LI><a href="#[1d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOTEUR_GAUCHE_ARRIERE
 <LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOTEUR_DROIT_AVANT
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOTEUR_DROIT_ARRIERE
@@ -130,6 +136,18 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_armcm3.o(.text)
 </UL>
+<P><STRONG><a name="[22]"></a>BUMPERS_INIT</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config bumper.o(.text))
+<BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
+
+<P><STRONG><a name="[23]"></a>SWITCHERS_INIT</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config switchers.o(.text))
+<BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
+
+<P><STRONG><a name="[21]"></a>LED_INIT</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config led.o(.text))
+<BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
+
 <P><STRONG><a name="[0]"></a>Reset_Handler</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, startup_armcm3.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_armcm3.o(RESET)
 </UL>

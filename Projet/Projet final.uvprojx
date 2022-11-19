@@ -394,6 +394,21 @@
               <FileType>2</FileType>
               <FilePath>.\Prise en main moteur.s</FilePath>
             </File>
+            <File>
+              <FileName>Config Bumper.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Config Bumper.s</FilePath>
+            </File>
+            <File>
+              <FileName>Config Switchers.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Config Switchers.s</FilePath>
+            </File>
+            <File>
+              <FileName>Config LED.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Config LED.s</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
