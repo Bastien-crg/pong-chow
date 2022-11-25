@@ -62,7 +62,6 @@ __main
 
 
 		;test clignotement
-		BL BLINK_BOTH_LED
 
 
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
@@ -73,17 +72,18 @@ avanceVoit
 		BL	MOTEUR_DROIT_AVANT	   
 		BL	MOTEUR_GAUCHE_AVANT
 		
+		
 		; Avancement pendant une période (deux WAIT)
 		;BL	WAIT	; BL (Branchement vers le lien WAIT); possibilité de retour à la suite avec (BX LR)
 		;BL	WAIT
 		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
 		b readBumper
 
-
+		
 		;; Boucle d'attante
 WAIT	ldr r1, =0xAFFFFF 
-wait1	subs r1, #1
-        bne wait1
+wait1	sub r1, #1
+		BNE wait1
 		
 		;; retour à la suite du lien de branchement
 		BX	LR
@@ -91,6 +91,7 @@ wait1	subs r1, #1
 actionBumperGauche
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
+		BL BLINK_BOTH_LED
 		BL WAIT
 		BL	MOTEUR_DROIT_OFF	   
 		BL	MOTEUR_GAUCHE_AVANT

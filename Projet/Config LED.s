@@ -49,8 +49,12 @@ LED_INIT
 			
 			
 BLINK_BOTH_LED
-
-loop
+		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
+		
+wait0	subs r1, #1
+        bne wait0		
+		
         str r2, [r9]    						;; Eteint LED car r2 = 0x00      
         ldr r1, = DUREE 						;; pour la duree de la boucle d'attente1 (wait1)
 
@@ -60,10 +64,6 @@ wait1	subs r1, #1
         str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
         ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
 
-wait2   subs r1, #1
-        bne wait2
-
-        b loop       
 		
 
 		
