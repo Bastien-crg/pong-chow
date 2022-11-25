@@ -1,7 +1,7 @@
 	;; RK - Evalbot (Cortex M3 de Texas Instrument)
 ; programme - Pilotage 2 Moteurs Evalbot par PWM tout en ASM (Evalbot tourne sur lui même)
 
-
+DUREE		EQU		0x002FFFF
 
 		AREA    |.text|, CODE, READONLY
 		ENTRY
@@ -32,10 +32,12 @@ SYSCTL_PERIPH_GPIO EQU		0x400FE108	; SYSCTL_RCGC2_R (p291 datasheet de lm3s9b92.
 		IMPORT 	LED_INIT
 		IMPORT 	TURN_ON_BOTH
 		IMPORT 	TURN_OFF_BOTH
+		IMPORT 	TURN_ON_LEFT
+		IMPORT 	TURN_ON_RIGHT
 
-DUREELed   				EQU     0x2FF
-DUREERecule   			EQU     0xAFFFF	;0xAFFFFF
-DUREETourne				EQU		0xAFFFF	;0xAFFFFF
+DUREELed   				EQU     0x2FFFFF
+DUREERecule   			EQU     0xAFFFF5	;0xAFFFFF
+DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
 
 __main	
 
@@ -64,7 +66,9 @@ __main
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 
-
+		;B END_OF_GAME
+		
+		
 		;test clignotement
 
 		;BL BLINK_BOTH_LED
@@ -89,12 +93,12 @@ avanceVoit
 ;; Boucle d'attante pour reculer
 TIMERRecule ldr r1, = DUREERecule
 AuxtimerRecule subs r1, #1
-		BL TURN_ON_BOTH
-		ldr r4, = DUREELed 
-TimerLed1	subs r4, #1
-			bne TimerLed1
-		BL TURN_OFF_BOTH
-		BL TURN_ON_BOTH
+;		BL TURN_ON_BOTH
+;		ldr r4, = DUREELed 
+;TimerLed1	subs r4, #1
+;			bne TimerLed1
+;		BL TURN_OFF_BOTH
+;		BL TURN_ON_BOTH
 		cmp r1, #0
         bne AuxtimerRecule
 		cmp r2, #1
@@ -103,11 +107,11 @@ TimerLed1	subs r4, #1
 		
 TIMERTourne ldr r1, = DUREETourne
 AuxtimerTourne subs r1, #1
-		BL TURN_OFF_BOTH
-		ldr r4, = DUREELed 
-TimerLed	subs r4, #1
-			bne TimerLed
-		BL TURN_ON_BOTH
+;		BL TURN_OFF_BOTH
+;		ldr r4, = DUREELed 
+;TimerLed	subs r4, #1
+;			bne TimerLed
+;		BL TURN_ON_BOTH
 		cmp r1, #0
         bne AuxtimerTourne
 		cmp r2, #1
@@ -116,12 +120,15 @@ TimerLed	subs r4, #1
 
 actionBumperGauche
 		mov r2, #1
+		;BL	TURN_ON_LEFT
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
 		b TIMERRecule
 repriseReculeBumperGauche
 		BL	MOTEUR_DROIT_OFF	   
 		BL	MOTEUR_GAUCHE_AVANT
+		BL	TURN_OFF_BOTH
+		BL	TURN_ON_RIGHT
 		b TIMERTourne
 repriseTourneBumperGauche
 		BL	TURN_OFF_BOTH
@@ -148,6 +155,28 @@ readBumper
 		CMP r10,#0x02
 		BEQ actionBumperDroit
 		b avanceVoit
+		
+END_OF_GAME
+			BL MOTEUR_GAUCHE_ON
+			BL MOTEUR_GAUCHE_AVANT
+			BL MOTEUR_DROIT_ON
+			BL MOTEUR_DROIT_ARRIERE
+loop
+			BL TURN_ON_LEFT
+			ldr r1, = DUREE 
+
+wait_left	subs r1, #1
+			bne wait_left
+
+			BL TURN_ON_RIGHT 	
+			ldr r1, = DUREE	
+
+wait_right  subs r1, #1
+			bne wait_right
+
+			b loop 
+		
+		
 		
 		NOP
         END

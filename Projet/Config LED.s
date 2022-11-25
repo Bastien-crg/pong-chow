@@ -14,6 +14,10 @@ GPIO_O_DEN  		EQU 	0x0000051C  ; GPIO Digital Enable (p437 datasheet de lm3s9B92
 GPIO_O_DR2R   		EQU 	0x00000500  ; GPIO 2-mA Drive Select (p428 datasheet de lm3s9B92.pdf)
 	
 DUREE   			EQU     0x002FFFFF
+BOTH_LED			EQU		48
+LEFT_LED			EQU		32
+RIGHT_LED			EQU		16
+NO_LED				EQU		0	
 
 		AREA    |.text|, CODE, READONLY
 		ENTRY
@@ -22,8 +26,9 @@ DUREE   			EQU     0x002FFFFF
 		EXPORT	LED_INIT
 		EXPORT	TURN_ON_BOTH
 		EXPORT 	TURN_OFF_BOTH
+		EXPORT 	TURN_ON_LEFT
+		EXPORT 	TURN_ON_RIGHT
 
-			
 		
 LED_INIT
         ldr r9, = GPIO_PORTF_BASE+GPIO_O_DIR    ;; 1 Pin du portF en sortie (broche 4 : 00010000)
@@ -48,22 +53,25 @@ LED_INIT
 		
 			
 TURN_ON_BOTH
-		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		ldr r3, =BOTH_LED
+		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000
 		BX LR
 		
 TURN_OFF_BOTH
-		str r2, [r9]  							;; Eteint LED car r2 = 0x00   
+		ldr r3, =NO_LED
+		str r3, [r9]  							;; Eteint LED  
 		BX LR		
 
 TURN_ON_LEFT
-		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		ldr r3, =LEFT_LED
+		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 
 		BX LR
 		
-TURN_OFF_LEFT
-		str r2, [r9]  							;; Eteint LED car r2 = 0x00   
+TURN_ON_RIGHT
+		ldr r3, =RIGHT_LED
+		str r3, [r9]  							  
 		BX LR	
-		
-			
+					
 			
 BLINK_BOTH_LED
 		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
@@ -86,3 +94,4 @@ wait1	subs r1, #1
 		
 		nop		
 		END 
+
