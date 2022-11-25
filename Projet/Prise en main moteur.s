@@ -62,7 +62,7 @@ __main
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 
 		
-loop	
+avanceVoit	
 		; Evalbot avance droit devant
 		
 		BL	MOTEUR_DROIT_AVANT	   
@@ -71,15 +71,9 @@ loop
 		; Avancement pendant une période (deux WAIT)
 		;BL	WAIT	; BL (Branchement vers le lien WAIT); possibilité de retour à la suite avec (BX LR)
 		;BL	WAIT
-		
 		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
-		b ReadState
-loop2
-		BL	MOTEUR_DROIT_OFF    ; MOTEUR_DROIT_INVERSE
-		b ReadState2
-		b loop2
+		b readBumper
 
-		b loop
 
 		;; Boucle d'attante
 WAIT	ldr r1, =0xAFFFFF 
@@ -89,10 +83,7 @@ wait1	subs r1, #1
 		;; retour à la suite du lien de branchement
 		BX	LR
 
-ReadState
-		ldr r10,[r8]
-		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BNE loop
+actionBumperGauche
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL WAIT
@@ -100,15 +91,25 @@ ReadState
 		BL	MOTEUR_GAUCHE_AVANT
 		BL WAIT
 		BL  MOTEUR_DROIT_ON
-		b loop
+		b avanceVoit
 
-ReadState2
+actionBumperDroit
+		BL	MOTEUR_DROIT_ARRIERE	   
+		BL	MOTEUR_GAUCHE_ARRIERE
+		BL WAIT
+		BL	MOTEUR_GAUCHE_OFF	   
+		BL	MOTEUR_DROIT_AVANT
+		BL WAIT
+		BL  MOTEUR_GAUCHE_ON
+		b avanceVoit
+
+readBumper
 		ldr r10,[r8]
 		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BNE ReadState2
-		BL	MOTEUR_DROIT_ON
-		b loop
-
+		BEQ actionBumperGauche
+		CMP r10,#0x02
+		BEQ actionBumperDroit
+		b avanceVoit
 		
 		NOP
         END
