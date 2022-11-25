@@ -30,8 +30,12 @@ SYSCTL_PERIPH_GPIO EQU		0x400FE108	; SYSCTL_RCGC2_R (p291 datasheet de lm3s9b92.
 		IMPORT	BUMPERS_INIT
 		IMPORT	SWITCHERS_INIT
 		IMPORT 	LED_INIT
-		IMPORT 	BLINK_BOTH_LED
+		IMPORT 	TURN_ON_BOTH
+		IMPORT 	TURN_OFF_BOTH
 
+DUREELed   				EQU     0x2FF
+DUREERecule   			EQU     0xAFFFF	;0xAFFFFF
+DUREETourne				EQU		0xAFFFF	;0xAFFFFF
 
 __main	
 
@@ -63,6 +67,7 @@ __main
 
 		;test clignotement
 
+		;BL BLINK_BOTH_LED
 
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 		
@@ -79,33 +84,60 @@ avanceVoit
 		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
 		b readBumper
 
+
+
+;; Boucle d'attante pour reculer
+TIMERRecule ldr r1, = DUREERecule
+AuxtimerRecule subs r1, #1
+		BL TURN_ON_BOTH
+		ldr r4, = DUREELed 
+TimerLed1	subs r4, #1
+			bne TimerLed1
+		BL TURN_OFF_BOTH
+		BL TURN_ON_BOTH
+		cmp r1, #0
+        bne AuxtimerRecule
+		cmp r2, #1
+		BEQ repriseReculeBumperGauche
+		b repriseReculeBumperDroit
 		
-		;; Boucle d'attante
-WAIT	ldr r1, =0xAFFFFF 
-wait1	sub r1, #1
-		BNE wait1
-		
-		;; retour à la suite du lien de branchement
-		BX	LR
+TIMERTourne ldr r1, = DUREETourne
+AuxtimerTourne subs r1, #1
+		BL TURN_OFF_BOTH
+		ldr r4, = DUREELed 
+TimerLed	subs r4, #1
+			bne TimerLed
+		BL TURN_ON_BOTH
+		cmp r1, #0
+        bne AuxtimerTourne
+		cmp r2, #1
+		BEQ repriseTourneBumperGauche
+		b repriseTourneBumperDroit
 
 actionBumperGauche
+		mov r2, #1
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
-		BL BLINK_BOTH_LED
-		BL WAIT
+		b TIMERRecule
+repriseReculeBumperGauche
 		BL	MOTEUR_DROIT_OFF	   
 		BL	MOTEUR_GAUCHE_AVANT
-		BL WAIT
+		b TIMERTourne
+repriseTourneBumperGauche
+		BL	TURN_OFF_BOTH
 		BL  MOTEUR_DROIT_ON
 		b avanceVoit
 
 actionBumperDroit
+		mov r2, #2
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
-		BL WAIT
+		b TIMERRecule
+repriseReculeBumperDroit
 		BL	MOTEUR_GAUCHE_OFF	   
 		BL	MOTEUR_DROIT_AVANT
-		BL WAIT
+		b TIMERTourne
+repriseTourneBumperDroit
 		BL  MOTEUR_GAUCHE_ON
 		b avanceVoit
 

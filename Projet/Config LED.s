@@ -20,8 +20,10 @@ DUREE   			EQU     0x002FFFFF
 		
 		;; The EXPORT command specifies that a symbol can be accessed by other shared objects or executables.
 		EXPORT	LED_INIT
-		EXPORT	BLINK_BOTH_LED
-		
+		EXPORT	TURN_ON_BOTH
+		EXPORT 	TURN_OFF_BOTH
+
+			
 		
 LED_INIT
         ldr r9, = GPIO_PORTF_BASE+GPIO_O_DIR    ;; 1 Pin du portF en sortie (broche 4 : 00010000)
@@ -45,7 +47,22 @@ LED_INIT
 		BX LR
 		
 			
-			
+TURN_ON_BOTH
+		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		BX LR
+		
+TURN_OFF_BOTH
+		str r2, [r9]  							;; Eteint LED car r2 = 0x00   
+		BX LR		
+
+TURN_ON_LEFT
+		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		BX LR
+		
+TURN_OFF_LEFT
+		str r2, [r9]  							;; Eteint LED car r2 = 0x00   
+		BX LR	
+		
 			
 			
 BLINK_BOTH_LED
