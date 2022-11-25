@@ -12,12 +12,15 @@ GPIO_O_DEN  		EQU 	0x0000051C  ; GPIO Digital Enable (p437 datasheet de lm3s9B92
 		; The GPIODR2R register is the 2-mA drive control register
 		; By default, all GPIO pins have 2-mA drive.
 GPIO_O_DR2R   		EQU 	0x00000500  ; GPIO 2-mA Drive Select (p428 datasheet de lm3s9B92.pdf)
+	
+DUREE   			EQU     0x002FFFFF
 
 		AREA    |.text|, CODE, READONLY
 		ENTRY
 		
 		;; The EXPORT command specifies that a symbol can be accessed by other shared objects or executables.
 		EXPORT	LED_INIT
+		EXPORT	BLINK_BOTH_LED
 		
 		
 LED_INIT
@@ -41,4 +44,28 @@ LED_INIT
 		ldr r9, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
 		BX LR
 		
-		END
+			
+			
+			
+			
+BLINK_BOTH_LED
+
+loop
+        str r2, [r9]    						;; Eteint LED car r2 = 0x00      
+        ldr r1, = DUREE 						;; pour la duree de la boucle d'attente1 (wait1)
+
+wait1	subs r1, #1
+        bne wait1
+
+        str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
+
+wait2   subs r1, #1
+        bne wait2
+
+        b loop       
+		
+
+		
+		nop		
+		END 

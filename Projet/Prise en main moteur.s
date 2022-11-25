@@ -30,6 +30,7 @@ SYSCTL_PERIPH_GPIO EQU		0x400FE108	; SYSCTL_RCGC2_R (p291 datasheet de lm3s9b92.
 		IMPORT	BUMPERS_INIT
 		IMPORT	SWITCHERS_INIT
 		IMPORT 	LED_INIT
+		IMPORT 	BLINK_BOTH_LED
 
 
 __main	
@@ -59,8 +60,12 @@ __main
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 
-		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 
+		;test clignotement
+		BL BLINK_BOTH_LED
+
+
+		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 		
 loop	
 		; Evalbot avance droit devant
