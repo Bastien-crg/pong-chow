@@ -1,7 +1,7 @@
 	;; RK - Evalbot (Cortex M3 de Texas Instrument)
 ; programme - Pilotage 2 Moteurs Evalbot par PWM tout en ASM (Evalbot tourne sur lui même)
 
-
+DUREE		EQU		0x002FFFF
 
 		AREA    |.text|, CODE, READONLY
 		ENTRY
@@ -63,7 +63,7 @@ __main
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 
-
+		B END_OF_GAME
 		;test clignotement
 		;BL BLINK_BOTH_LED
 
@@ -121,6 +121,28 @@ readBumper
 		CMP r10,#0x02
 		BEQ actionBumperDroit
 		b avanceVoit
+		
+END_OF_GAME
+			BL MOTEUR_GAUCHE_ON
+			BL MOTEUR_GAUCHE_AVANT
+			BL MOTEUR_DROIT_ON
+			BL MOTEUR_DROIT_ARRIERE
+loop
+			BL TURN_ON_LEFT
+			ldr r1, = DUREE 
+
+wait_left	subs r1, #1
+			bne wait_left
+
+			BL TURN_ON_RIGHT 	
+			ldr r1, = DUREE	
+
+wait_right  subs r1, #1
+			bne wait_right
+
+			b loop 
+		
+		
 		
 		NOP
         END
