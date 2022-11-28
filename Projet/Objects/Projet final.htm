@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Projet final.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Projet final.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Fri Nov 25 16:30:30 2022
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Mon Nov 28 15:10:34 2022
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -130,6 +130,7 @@ Global Symbols
 <P><STRONG><a name="[15]"></a>__main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, prise en main moteur.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[25]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TURN_ON_RIGHT
 <LI><a href="#[24]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TURN_ON_LEFT
+<LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TURN_ON_BOTH
 <LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TURN_OFF_BOTH
 <LI><a href="#[27]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SWITCHERS_INIT
 <LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_INIT
@@ -158,7 +159,9 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[22]"></a>TURN_ON_BOTH</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config led.o(.text), UNUSED, KEPT)
+<P><STRONG><a name="[22]"></a>TURN_ON_BOTH</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config led.o(.text))
+<BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
 
 <P><STRONG><a name="[23]"></a>TURN_OFF_BOTH</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, config led.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
