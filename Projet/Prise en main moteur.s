@@ -40,6 +40,9 @@ DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
 DUREEJeu				EQU 	0x4FFF	;0x43FFFF
 
+TEMPSMax						0x4FFFFF
+TEMPSMin				EQU		0xBFFFF
+
 __main	
 
 				; ;; Enable the Port F & D peripheral clock 		(p291 datasheet de lm3s9B96.pdf)
