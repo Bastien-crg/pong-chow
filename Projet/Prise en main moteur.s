@@ -120,7 +120,6 @@ AuxtimerTourne subs r1, #1
 
 actionBumperGauche
 		mov r2, #1
-		;BL	TURN_ON_LEFT
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL  TURN_ON_BOTH
@@ -140,12 +139,16 @@ actionBumperDroit
 		mov r2, #2
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
+		BL  TURN_ON_BOTH
 		b TIMERRecule
 repriseReculeBumperDroit
 		BL	MOTEUR_GAUCHE_OFF	   
 		BL	MOTEUR_DROIT_AVANT
+		BL	TURN_OFF_BOTH
+		BL	TURN_ON_LEFT
 		b TIMERTourne
 repriseTourneBumperDroit
+		BL  TURN_OFF_BOTH
 		BL  MOTEUR_GAUCHE_ON
 		b avanceVoit
 
