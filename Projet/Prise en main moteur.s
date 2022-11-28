@@ -1,7 +1,7 @@
 	;; RK - Evalbot (Cortex M3 de Texas Instrument)
 ; programme - Pilotage 2 Moteurs Evalbot par PWM tout en ASM (Evalbot tourne sur lui même)
 
-DUREE		EQU		0x002FFFF
+
 
 		AREA    |.text|, CODE, READONLY
 		ENTRY
@@ -35,10 +35,11 @@ SYSCTL_PERIPH_GPIO EQU		0x400FE108	; SYSCTL_RCGC2_R (p291 datasheet de lm3s9b92.
 		IMPORT 	TURN_ON_LEFT
 		IMPORT 	TURN_ON_RIGHT
 
-DUREELed   				EQU     0x2FFFFF
+DUREE					EQU		0x2FFFF
+DUREELed   				EQU     0x8FFFF
 DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
-DUREEJeu				EQU 	0x4FFF	;0x43FFFF
+DUREEJeu				EQU 	0x4FFFFF	;0x43FFFF
 
 __main	
 
@@ -63,6 +64,47 @@ __main
 		BL	MOTEUR_INIT
 		BL 	LED_INIT
 		
+		
+		
+CHOOSE_TIME
+		ldr r10,[r7]
+		CMP r10,#0x80
+		BEQ FIRST_SELECTED
+		B CHOOSE_TIME
+UP_BUTTON 
+		ldr r10, [r7]
+		CMP r10,#0xC0
+		BEQ CHOOSE_SPEED
+		B UP_BUTTON
+		
+CHOOSE_SPEED
+		ldr r10,[r7]
+		CMP r10,#0x80
+		BEQ SECOND_SELECTED
+		CMP r10,#0x40
+		BEQ avanceVoit
+		B CHOOSE_SPEED
+		
+FIRST_SELECTED
+		BL TURN_ON_LEFT
+		B UP_BUTTON
+
+SECOND_SELECTED
+		BL TURN_ON_BOTH
+		LDR r1, =DUREELed
+		B WAIT_BOTH_SPEED
+		
+WAIT_BOTH_SPEED
+		SUB r1, #1
+		CMP r1, #0
+		BEQ WAIT_LEFT_SPEED
+		B WAIT_BOTH_SPEED
+WAIT_LEFT_SPEED
+		BL TURN_ON_BOTH
+		
+		
+		
+		
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
@@ -72,7 +114,8 @@ __main
 		
 		;test clignotement
 
-		;BL BLINK_BOTH_LED
+
+		
 
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 
@@ -118,12 +161,14 @@ actionBumperGauche
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL  TURN_ON_BOTH
 		b TIMERRecule
+		
 repriseReculeBumperGauche
 		BL	MOTEUR_DROIT_OFF	   
 		BL	MOTEUR_GAUCHE_AVANT
 		BL	TURN_OFF_BOTH
 		BL	TURN_ON_RIGHT
 		b TIMERTourne
+		
 repriseTourneBumperGauche
 		BL	TURN_OFF_BOTH
 		BL  MOTEUR_DROIT_ON
@@ -135,16 +180,35 @@ actionBumperDroit
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL  TURN_ON_BOTH
 		b TIMERRecule
+		
 repriseReculeBumperDroit
 		BL	MOTEUR_GAUCHE_OFF	   
 		BL	MOTEUR_DROIT_AVANT
 		BL	TURN_OFF_BOTH
 		BL	TURN_ON_LEFT
 		b TIMERTourne
+		
 repriseTourneBumperDroit
 		BL  TURN_OFF_BOTH
 		BL  MOTEUR_GAUCHE_ON
 		b avanceVoit
+		
+		
+		
+		
+		
+		
+
+		
+
+readSwitcher
+		ldr r10,[r7]
+		CMP r10,#0x80							;;0x01 = bumber gauche , 0x02 = bumber droit
+		BEQ actionBumperGauche
+		CMP r10,#0x40
+		BEQ actionBumperDroit
+		b avanceVoit
+
 
 readBumper
 		ldr r10,[r8]

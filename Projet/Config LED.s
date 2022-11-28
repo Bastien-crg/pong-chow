@@ -42,8 +42,6 @@ LED_INIT
 		ldr r9, = GPIO_PORTF_BASE+GPIO_O_DR2R	;; Choix de l'intensité de sortie (2mA)
         ldr r0, = BROCHE4_5			
         str r0, [r9]
-		
-		 mov r2, #0x000       					;; pour eteindre LED
      
 		; allumer la led broche 4 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000
@@ -72,26 +70,6 @@ TURN_ON_RIGHT
 		str r3, [r9]  							  
 		BX LR	
 					
-			
-BLINK_BOTH_LED
-		str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
-        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
-		
-wait0	subs r1, #1
-        bne wait0		
-		
-        str r2, [r9]    						;; Eteint LED car r2 = 0x00      
-        ldr r1, = DUREE 						;; pour la duree de la boucle d'attente1 (wait1)
-
-wait1	subs r1, #1
-        bne wait1
-
-        str r3, [r9]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
-        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
-
-		
-
-		
 		nop		
 		END 
 
