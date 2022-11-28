@@ -27,24 +27,21 @@ Project File Date:  11/28/2022
 <h2>Output:</h2>
 *** Using Compiler 'V6.18', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target 1'
-assembling Config Switchers.s...
-assembling Config Moteur.s...
 "Config Bumper.s", line 30: Warning: A1581W: Added 2 bytes of padding at address 0x1e
    30 00000020   END
 0 Errors, 1 Warning
 assembling Config Bumper.s...
+assembling Config Switchers.s...
+assembling startup_ARMCM3.s...
 "Config LED.s", line 96: Warning: A1581W: Added 2 bytes of padding at address 0x76
    96 00000078   END 
 0 Errors, 1 Warning
 assembling Config LED.s...
 compiling system_ARMCM3.c...
-assembling startup_ARMCM3.s...
-"Prise en main moteur.s", line 186: Warning: A1581W: Added 2 bytes of padding at address 0xe6
-  186 000000e8         END
-0 Errors, 1 Warning
 assembling Prise en main moteur.s...
+assembling Config Moteur.s...
 linking...
-Program Size: Code=1044 RO-data=960 RW-data=4 ZI-data=1024  
+Program Size: Code=1056 RO-data=960 RW-data=4 ZI-data=1024  
 ".\Objects\Projet final.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
@@ -66,10 +63,10 @@ Package Vendor: ARM
    * Component: ARM::CMSIS:CORE:5.6.0
 
    * Component: ARM::Device:Startup:1.2.2
-      Include file:  Device/ARM/ARMCM3/Include/ARMCM3.h
       Source file:   Device/ARM/ARMCM3/Source/ARM/startup_ARMCM3.s
+      Include file:  Device/ARM/ARMCM3/Include/ARMCM3.h
       Source file:   Device/ARM/ARMCM3/Source/system_ARMCM3.c
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

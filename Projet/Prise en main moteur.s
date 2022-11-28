@@ -38,6 +38,7 @@ SYSCTL_PERIPH_GPIO EQU		0x400FE108	; SYSCTL_RCGC2_R (p291 datasheet de lm3s9b92.
 DUREELed   				EQU     0x2FFFFF
 DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
+DUREEJeu				EQU 	0x4FFF	;0x43FFFF
 
 __main	
 
@@ -65,7 +66,7 @@ __main
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
-
+		ldr r4, =DUREEJeu
 		;B END_OF_GAME
 		
 		
@@ -74,31 +75,27 @@ __main
 		;BL BLINK_BOTH_LED
 
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
-		
+
+
+
 avanceVoit	
 		; Evalbot avance droit devant
-		
+		subs r4, #1
+		cmp r4, #0
+		BLE END_OF_GAME
 		BL	MOTEUR_DROIT_AVANT	   
 		BL	MOTEUR_GAUCHE_AVANT
 		
 		
-		; Avancement pendant une période (deux WAIT)
-		;BL	WAIT	; BL (Branchement vers le lien WAIT); possibilité de retour à la suite avec (BX LR)
-		;BL	WAIT
-		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
 		b readBumper
 
 
 
 ;; Boucle d'attante pour reculer
 TIMERRecule ldr r1, = DUREERecule
-AuxtimerRecule subs r1, #1
-;		BL TURN_ON_BOTH
-;		ldr r4, = DUREELed 
-;TimerLed1	subs r4, #1
-;			bne TimerLed1
-;		BL TURN_OFF_BOTH
-;		BL TURN_ON_BOTH
+AuxtimerRecule 
+		subs r4, #1
+		subs r1, #1
 		cmp r1, #0
         bne AuxtimerRecule
 		cmp r2, #1
@@ -106,12 +103,9 @@ AuxtimerRecule subs r1, #1
 		b repriseReculeBumperDroit
 		
 TIMERTourne ldr r1, = DUREETourne
-AuxtimerTourne subs r1, #1
-;		BL TURN_OFF_BOTH
-;		ldr r4, = DUREELed 
-;TimerLed	subs r4, #1
-;			bne TimerLed
-;		BL TURN_ON_BOTH
+AuxtimerTourne 
+		subs r4, #1
+		subs r1, #1
 		cmp r1, #0
         bne AuxtimerTourne
 		cmp r2, #1
