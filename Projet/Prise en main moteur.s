@@ -44,11 +44,12 @@ DUREEJeu				EQU 	0x43FFFF	;0x43FFFF
 TEMPSMax				EQU		0x43FFFFF
 TEMPSMin				EQU		0xBBFFFF
 
-VITESSE					EQU 	0x1B2
-VITESSEMax				EQU		0x1A
-PWM_BASE		EQU		0x040028000 	   ;BASE des Block PWM p.1138
-PWM1CMPA		EQU		PWM_BASE+0x098
-PWM0CMPA		EQU		PWM_BASE+0x058
+VITESSE1				EQU 	0x1B2
+VITESSE2				EQU 	0xFC
+VITESSE3				EQU 	0xE2
+VITESSE4				EQU 	0x8F
+VITESSEMax				EQU		0xF
+
 
 
 __main	
@@ -72,8 +73,11 @@ __main
 		BL 	SWITCHERS_INIT
 		BL 	BUMPERS_INIT
 		BL 	LED_INIT
+
+		ldr r4, =TEMPSMin
 		
 CHOOSE_TIME
+		MOV r5, #0 ; prepare r5 for the speed
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if button pull go to UP_BUTTON
 		BEQ UP_BUTTON
@@ -99,55 +103,76 @@ UP_BUTTON
 		
 CHOOSE_SPEED
 		ldr r10,[r7] ;load button state in r10
-		CMP r10,#0x80 ; if both are up go to CHOOSE_SPEED
-		BEQ INIT_GAME
-		;BEQ SECOND_SELECTED
+		CMP r10,#0x80 ; if button pull go to SPEED_SELECTOR
+		BEQ SPEED_SELECTOR
 		CMP r10,#0x40
-		BEQ INIT_GAME
+		BEQ INIT_SPEED
 		B CHOOSE_SPEED
 
-SECOND_SELECTED
-		mov r5,#5
-WAIT_BOTH_SPEED
-		SUBS r5, #1
-		BL TURN_ON_BOTH
-		LDR r1, =DUREELed
-auxWAIT_BOTH_SPEED
-		SUBS r1, #1
-		CMP r1, #0
-		BEQ WAIT_LEFT_SPEED
-		B auxWAIT_BOTH_SPEED
+SPEED_SELECTOR
+		ADD r5, #1
+		CMP r5, #5
+		BEQ BACK_TO_ONE
+load_r12		
+		MOV r12, r5
+		B BLINK_LOOP_r12
+end_loop
+		B UP_BUTTON
+
+
+BACK_TO_ONE
+		MOV r5, #1
+		B load_r12		
 		
-WAIT_LEFT_SPEED
-		BL TURN_ON_LEFT
-		LDR r1, =DUREELed
-auxWAIT_LEFT_SPEED
-		SUBS r1, #1
-		CMP r1, #0
-		BEQ SECOND_SELECTED
-		B auxWAIT_LEFT_SPEED
-		
-blink_loop_r12
-		
-		
-		
-		
-		
-		; Activer les deux moteurs droit et gauche
-		BL	MOTEUR_DROIT_ON
-		BL	MOTEUR_GAUCHE_ON
-		ldr r5, =VITESSE
-		ldr r4, =DUREEJeu
-		;B END_OF_GAME
-		
+BLINK_LOOP_r12
+			CMP r12, #0
+			BEQ end_loop
+			SUBS r12, #1
+			BL TURN_ON_BOTH
+			ldr r1, = DUREELed 
+
+both_light	subs r1, #1
+			bne both_light
+
+			BL TURN_ON_LEFT 	
+			ldr r1, = DUREELed
+
+left_light  subs r1, #1
+			bne left_light
+
+			b BLINK_LOOP_r12 	
 		
 		;test clignotement
 
+INIT_SPEED
+		cmp r5, #1
+		BEQ load_vitesse1
+		cmp r5, #2
+		BEQ load_vitesse2
+		cmp r5, #3
+		BEQ load_vitesse3
+		cmp r5, #4
+		BEQ load_vitesse4	
 
-INIT_GAME
-		ldr r5, =VITESSE
-		BL	MOTEUR_INIT
+load_vitesse1
+		ldr r5, =VITESSE1
+		b INIT_GAME
 		
+load_vitesse2
+		ldr r5, =VITESSE2
+		b INIT_GAME
+
+load_vitesse3
+		ldr r5, =VITESSE3
+		b INIT_GAME
+
+load_vitesse4
+		ldr r5, =VITESSE4
+		b INIT_GAME
+		
+INIT_GAME
+		BL  TURN_OFF_BOTH
+		BL	MOTEUR_INIT
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 		b avanceVoit
@@ -164,16 +189,16 @@ RECULE_et_VITESSE
 		BL	MOTEUR_GAUCHE_ON
 		BL	MOTEUR_DROIT_ARRIERE	   
 		BL	MOTEUR_GAUCHE_ARRIERE
+		BL  TURN_ON_BOTH
 		b TIMERRecule
 
 
 resetSpeed
-		ldr r5, =VITESSE
+		ldr r5, =VITESSE1
 		b RECULE_et_VITESSE
 
-avanceVoit	
+avanceVoit
 		; Evalbot avance droit devant
-		ldr r4, =DUREEJeu
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 		subs r4, #1
@@ -182,8 +207,6 @@ avanceVoit
 		BL	MOTEUR_DROIT_AVANT	   
 		BL	MOTEUR_GAUCHE_AVANT
 		b readBumper
-
-
 
 ;; Boucle d'attante pour reculer
 TIMERRecule ldr r1, = DUREERecule
@@ -231,17 +254,6 @@ repriseTourneBumperDroit
 		BL  TURN_OFF_BOTH
 		BL  MOTEUR_GAUCHE_ON
 		b avanceVoit
-		
-		
-		
-		
-		
-		
-
-		
-
-
-
 
 readBumper
 		ldr r10,[r8]
@@ -253,6 +265,8 @@ readBumper
 		b avanceVoit
 		
 END_OF_GAME
+			ldr r5, =VITESSEMax
+			BL	MOTEUR_INIT
 			BL MOTEUR_GAUCHE_ON
 			BL MOTEUR_GAUCHE_AVANT
 			BL MOTEUR_DROIT_ON
