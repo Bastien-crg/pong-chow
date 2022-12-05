@@ -69,31 +69,17 @@ __main
 		ldr r4, #TEMPSMin
 		
 CHOOSE_TIME
-<<<<<<< HEAD
-		ldr r10,[r7]
-		add r4, #1
-		CMP r10,#0x80
-		BEQ FIRST_SELECTED
-		B chooseTime_Aux
-chooseTime_Aux
-		mov r10, =TEMPSMax
-		cmp r4, r10
-		bhs 
-		
-		
-FIRST_SELECTED
-		BL TURN_ON_LEFT
-		B UP_BUTTON
-=======
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if button pull go to UP_BUTTON
-		BEQ UP_BUTTON
 		B CHOOSE_TIME
+		;B chooseTime_Aux
+		BEQ UP_BUTTON
+		
+;chooseTime_Aux
+;		mov r10, =TEMPSMax
+;		cmp r4, r10
+;		bhs 
 
-; FIRST_SELECTED
-		; BL TURN_ON_LEFT
-		; B UP_BUTTON
->>>>>>> efdcdd861e20bd64ff07cc8440e7601141ff6aa9
 
 UP_BUTTON 
 		BL TURN_ON_LEFT ; turn on left led
