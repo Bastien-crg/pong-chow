@@ -67,43 +67,53 @@ __main
 		
 		
 CHOOSE_TIME
-		ldr r10,[r7]
-		CMP r10,#0x80
-		BEQ FIRST_SELECTED
+		ldr r10,[r7] ;load button state in r10
+		CMP r10,#0x80 ; if button pull go to UP_BUTTON
+		BEQ UP_BUTTON
 		B CHOOSE_TIME
 
-FIRST_SELECTED
-		BL TURN_ON_LEFT
-		B UP_BUTTON
+; FIRST_SELECTED
+		; BL TURN_ON_LEFT
+		; B UP_BUTTON
 
 UP_BUTTON 
-		ldr r10, [r7]
-		CMP r10,#0xC0
+		BL TURN_ON_LEFT ; turn on left led
+		ldr r10, [r7] ;load button state in r10
+		CMP r10,#0xC0 ; if both are up go to CHOOSE_SPEED
 		BEQ CHOOSE_SPEED
 		B UP_BUTTON
 		
 CHOOSE_SPEED
-		ldr r10,[r7]
-		CMP r10,#0x80
+		ldr r10,[r7] ;load button state in r10
+		CMP r10,#0x80 ; if both are up go to CHOOSE_SPEED
 		BEQ SECOND_SELECTED
 		CMP r10,#0x40
 		BEQ avanceVoit
 		B CHOOSE_SPEED
-		
-
 
 SECOND_SELECTED
+		LDR r5, #5
+WAIT_BOTH_SPEED
+		SUBS r5, #1
 		BL TURN_ON_BOTH
 		LDR r1, =DUREELed
-		B WAIT_BOTH_SPEED
-		
-WAIT_BOTH_SPEED
-		SUB r1, #1
+auxWAIT_BOTH_SPEED
+		SUBS r1, #1
 		CMP r1, #0
 		BEQ WAIT_LEFT_SPEED
-		B WAIT_BOTH_SPEED
+		B auxWAIT_BOTH_SPEED
+		
 WAIT_LEFT_SPEED
-		BL TURN_ON_BOTH
+		BL TURN_ON_LEFT
+		LDR r1, =DUREELed
+auxWAIT_LEFT_SPEED
+		SUBS r1, #1
+		CMP r1, #0
+		BEQ SECOND_SELECTED
+		B auxWAIT_LEFT_SPEED
+		
+blink_loop_r12
+		
 		
 		
 		
