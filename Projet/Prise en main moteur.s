@@ -67,6 +67,7 @@ __main
 		
 		
 CHOOSE_TIME
+		MOV r5, #0 ; prepare r5 for the speed
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if button pull go to UP_BUTTON
 		BEQ UP_BUTTON
@@ -85,34 +86,45 @@ UP_BUTTON
 		
 CHOOSE_SPEED
 		ldr r10,[r7] ;load button state in r10
-		CMP r10,#0x80 ; if both are up go to CHOOSE_SPEED
-		BEQ SECOND_SELECTED
+		CMP r10,#0x80 ; if button pull go to SPEED_SELECTOR
+		BEQ SPEED_SELECTOR
 		CMP r10,#0x40
 		BEQ avanceVoit
 		B CHOOSE_SPEED
 
-SECOND_SELECTED
-		LDR r5, #5
-WAIT_BOTH_SPEED
-		SUBS r5, #1
-		BL TURN_ON_BOTH
-		LDR r1, =DUREELed
-auxWAIT_BOTH_SPEED
-		SUBS r1, #1
-		CMP r1, #0
-		BEQ WAIT_LEFT_SPEED
-		B auxWAIT_BOTH_SPEED
+SPEED_SELECTOR
+		ADD r5, #1
+		CMP r5, #5
+		BEQ BACK_TO_ONE
+load_r12		
+		MOV r12, r5
+		B BLINK_LOOP_r12
+end_loop
+		B UP_BUTTON
+
+
+BACK_TO_ONE
+		MOV r5, #1
+		B load_r12
 		
-WAIT_LEFT_SPEED
-		BL TURN_ON_LEFT
-		LDR r1, =DUREELed
-auxWAIT_LEFT_SPEED
-		SUBS r1, #1
-		CMP r1, #0
-		BEQ SECOND_SELECTED
-		B auxWAIT_LEFT_SPEED
 		
-blink_loop_r12
+BLINK_LOOP_r12
+			CMP r12, #0
+			BEQ end_loop
+			SUBS r12, #1
+			BL TURN_ON_BOTH
+			ldr r1, = DUREELed 
+
+both_light	subs r1, #1
+			bne both_light
+
+			BL TURN_ON_LEFT 	
+			ldr r1, = DUREELed
+
+left_light  subs r1, #1
+			bne left_light
+
+			b BLINK_LOOP_r12 
 		
 		
 		
