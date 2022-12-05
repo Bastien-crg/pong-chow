@@ -41,6 +41,9 @@ DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
 DUREEJeu				EQU 	0x4FFFFF	;0x43FFFF
 
+TEMPSMax				EQU		0x4FFFFF
+TEMPSMin				EQU		0xBFFFF
+
 __main	
 
 				; ;; Enable the Port F & D peripheral clock 		(p291 datasheet de lm3s9B96.pdf)
@@ -63,19 +66,21 @@ __main
 		BL 	BUMPERS_INIT
 		BL	MOTEUR_INIT
 		BL 	LED_INIT
-		
-		
+		ldr r4, =TEMPSMin
 		
 CHOOSE_TIME
 		MOV r5, #0 ; prepare r5 for the speed
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if button pull go to UP_BUTTON
 		BEQ UP_BUTTON
+		;B chooseTime_Aux
 		B CHOOSE_TIME
+		
+;chooseTime_Aux
+;		mov r10, =TEMPSMax
+;		cmp r4, r10
+;		bhs 
 
-; FIRST_SELECTED
-		; BL TURN_ON_LEFT
-		; B UP_BUTTON
 
 UP_BUTTON 
 		BL TURN_ON_LEFT ; turn on left led
@@ -129,11 +134,10 @@ left_light  subs r1, #1
 		
 		
 		
-		
+avanceVoit		
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
-		ldr r4, =DUREEJeu
 		;B END_OF_GAME
 		
 		
@@ -146,7 +150,7 @@ left_light  subs r1, #1
 
 
 
-avanceVoit	
+	
 		; Evalbot avance droit devant
 		subs r4, #1
 		cmp r4, #0
