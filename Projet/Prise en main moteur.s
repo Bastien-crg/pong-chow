@@ -41,7 +41,7 @@ DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
 DUREEJeu				EQU 	0x4FFFFF	;0x43FFFF
 
-TEMPSMax						0x4FFFFF
+TEMPSMax				EQU		0x4FFFFF
 TEMPSMin				EQU		0xBFFFF
 
 __main	
@@ -66,15 +66,20 @@ __main
 		BL 	BUMPERS_INIT
 		BL	MOTEUR_INIT
 		BL 	LED_INIT
-		
-		
+		ldr r4, #TEMPSMin
 		
 CHOOSE_TIME
 		ldr r10,[r7]
+		add r4, #1
 		CMP r10,#0x80
 		BEQ FIRST_SELECTED
-		B CHOOSE_TIME
-
+		B chooseTime_Aux
+chooseTime_Aux
+		mov r10, =TEMPSMax
+		cmp r4, r10
+		bhs 
+		
+		
 FIRST_SELECTED
 		BL TURN_ON_LEFT
 		B UP_BUTTON
@@ -114,7 +119,6 @@ WAIT_LEFT_SPEED
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
-		ldr r4, =DUREEJeu
 		;B END_OF_GAME
 		
 		
