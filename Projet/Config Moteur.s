@@ -59,7 +59,7 @@ PWM1GENA		EQU		PWM_BASE+0x0A0
 PWM1GENB		EQU		PWM_BASE+0x0A4
 
 
-VITESSE			EQU		0x0C4	; Valeures plus petites => Vitesse plus rapide exemple 0x192
+VITESSE			EQU		0x1B2	; Valeures plus petites => Vitesse plus rapide exemple 0x192
 								; Valeures plus grandes => Vitesse moins rapide exemple 0x1B2
 						
 						
@@ -80,7 +80,7 @@ VITESSE			EQU		0x0C4	; Valeures plus petites => Vitesse plus rapide exemple 0x19
 		EXPORT  MOTEUR_GAUCHE_INVERSE
 
 
-MOTEUR_INIT	
+MOTEUR_INIT			
 		ldr r6, = SYSCTL_RCGC0
 		ldr	r0, [R6]
         ORR	r0, r0, #0x00100000  ;;bit 20 = PWM recoit clock: ON (p271) 
@@ -158,7 +158,7 @@ MOTEUR_INIT
 		str	r0,[r6]
 		
 		ldr	r6, =PWM0CMPA ;Valeur rapport cyclique : pour 10% => 1C2h si clock = 0F42400
-		mov	r0, #VITESSE
+		mov	r0, r5
 		str	r0, [r6]  
 		
 		ldr	r6, =PWM0CMPB ;PWM0CMPB recoit meme valeur. (rapport cyclique depend de CMPA)
@@ -197,7 +197,7 @@ MOTEUR_INIT
 		str	r0,[r6]
 		
 		ldr	r6, =PWM1CMPA ;Valeur rapport cyclique : pour 10% => 1C2h si clock = 0F42400
-		mov	r0,	#VITESSE
+		mov	r0, r5
 		str	r0, [r6]  ;*(int *)(0x40028000+0x058)=0x01C2;
 		
 		ldr	r6, =PWM1CMPB ;PWM0CMPB recoit meme valeur. (CMPA depend du rapport cyclique)

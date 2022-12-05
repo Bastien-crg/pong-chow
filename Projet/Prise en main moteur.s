@@ -39,10 +39,17 @@ DUREE					EQU		0x2FFFF
 DUREELed   				EQU     0x8FFFF
 DUREERecule   			EQU     0xAFFFF1	;0xAFFFFF
 DUREETourne				EQU		0xAFFFF5	;0xAFFFFF
-DUREEJeu				EQU 	0x4FFFFF	;0x43FFFF
+DUREEJeu				EQU 	0x43FFFF	;0x43FFFF
 
-TEMPSMax				EQU		0x4FFFFF
-TEMPSMin				EQU		0xBFFFF
+TEMPSMax				EQU		0x43FFFFF
+TEMPSMin				EQU		0xBBFFFF
+
+VITESSE					EQU 	0x1B2
+VITESSEMax				EQU		0x1A
+PWM_BASE		EQU		0x040028000 	   ;BASE des Block PWM p.1138
+PWM1CMPA		EQU		PWM_BASE+0x098
+PWM0CMPA		EQU		PWM_BASE+0x058
+
 
 __main	
 
@@ -64,22 +71,24 @@ __main
 		; Configure les PWM + GPIO
 		BL 	SWITCHERS_INIT
 		BL 	BUMPERS_INIT
-		BL	MOTEUR_INIT
 		BL 	LED_INIT
-		ldr r4, #TEMPSMin
 		
 CHOOSE_TIME
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if button pull go to UP_BUTTON
-		B CHOOSE_TIME
-		;B chooseTime_Aux
 		BEQ UP_BUTTON
+		B chooseTime_Aux
 		
-;chooseTime_Aux
-;		mov r10, =TEMPSMax
-;		cmp r4, r10
-;		bhs 
+chooseTime_Aux
+		ldr r10, =TEMPSMax
+		cmp r4, r10
+		bhs resetGameTime ;si le temps de jeu est plus grand que le temp max
+		add r4, #10
+		b CHOOSE_TIME
 
+resetGameTime
+		ldr r4, =TEMPSMin
+		b CHOOSE_TIME
 
 UP_BUTTON 
 		BL TURN_ON_LEFT ; turn on left led
@@ -91,13 +100,14 @@ UP_BUTTON
 CHOOSE_SPEED
 		ldr r10,[r7] ;load button state in r10
 		CMP r10,#0x80 ; if both are up go to CHOOSE_SPEED
-		BEQ SECOND_SELECTED
+		BEQ INIT_GAME
+		;BEQ SECOND_SELECTED
 		CMP r10,#0x40
-		BEQ avanceVoit
+		BEQ INIT_GAME
 		B CHOOSE_SPEED
 
 SECOND_SELECTED
-		LDR r5, #5
+		mov r5,#5
 WAIT_BOTH_SPEED
 		SUBS r5, #1
 		BL TURN_ON_BOTH
@@ -126,27 +136,51 @@ blink_loop_r12
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
+		ldr r5, =VITESSE
+		ldr r4, =DUREEJeu
 		;B END_OF_GAME
 		
 		
 		;test clignotement
 
 
+INIT_GAME
+		ldr r5, =VITESSE
+		BL	MOTEUR_INIT
 		
+		BL	MOTEUR_DROIT_ON
+		BL	MOTEUR_GAUCHE_ON
+		b avanceVoit
 
 		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
 
+RECULE_et_VITESSE
+		ldr r10, =VITESSEMax
+		cmp r5, r10
+		bls resetSpeed 
+		subs r5, #40
+		BL	MOTEUR_INIT	
+		BL	MOTEUR_DROIT_ON
+		BL	MOTEUR_GAUCHE_ON
+		BL	MOTEUR_DROIT_ARRIERE	   
+		BL	MOTEUR_GAUCHE_ARRIERE
+		b TIMERRecule
 
+
+resetSpeed
+		ldr r5, =VITESSE
+		b RECULE_et_VITESSE
 
 avanceVoit	
 		; Evalbot avance droit devant
+		ldr r4, =DUREEJeu
+		BL	MOTEUR_DROIT_ON
+		BL	MOTEUR_GAUCHE_ON
 		subs r4, #1
 		cmp r4, #0
 		BLE END_OF_GAME
 		BL	MOTEUR_DROIT_AVANT	   
 		BL	MOTEUR_GAUCHE_AVANT
-		
-		
 		b readBumper
 
 
@@ -158,7 +192,7 @@ AuxtimerRecule
 		subs r1, #1
 		cmp r1, #0
         bne AuxtimerRecule
-		cmp r2, #1
+		cmp r2, #0x01
 		BEQ repriseReculeBumperGauche
 		b repriseReculeBumperDroit
 		
@@ -168,16 +202,10 @@ AuxtimerTourne
 		subs r1, #1
 		cmp r1, #0
         bne AuxtimerTourne
-		cmp r2, #1
+		cmp r2, #0x01
 		BEQ repriseTourneBumperGauche
 		b repriseTourneBumperDroit
 
-actionBumperGauche
-		mov r2, #1
-		BL	MOTEUR_DROIT_ARRIERE	   
-		BL	MOTEUR_GAUCHE_ARRIERE
-		BL  TURN_ON_BOTH
-		b TIMERRecule
 		
 repriseReculeBumperGauche
 		BL	MOTEUR_DROIT_OFF	   
@@ -191,12 +219,6 @@ repriseTourneBumperGauche
 		BL  MOTEUR_DROIT_ON
 		b avanceVoit
 
-actionBumperDroit
-		mov r2, #2
-		BL	MOTEUR_DROIT_ARRIERE	   
-		BL	MOTEUR_GAUCHE_ARRIERE
-		BL  TURN_ON_BOTH
-		b TIMERRecule
 		
 repriseReculeBumperDroit
 		BL	MOTEUR_GAUCHE_OFF	   
@@ -218,21 +240,16 @@ repriseTourneBumperDroit
 
 		
 
-readSwitcher
-		ldr r10,[r7]
-		CMP r10,#0x80							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BEQ actionBumperGauche
-		CMP r10,#0x40
-		BEQ actionBumperDroit
-		b avanceVoit
+
 
 
 readBumper
 		ldr r10,[r8]
-		CMP r10,#0x01							;;0x01 = bumber gauche , 0x02 = bumber droit
-		BEQ actionBumperGauche
+		mov r2 ,r10					;;0x01 = bumber gauche , 0x02 = bumber droit
+		CMP r10,#0x01							
+		BEQ RECULE_et_VITESSE
 		CMP r10,#0x02
-		BEQ actionBumperDroit
+		BEQ RECULE_et_VITESSE
 		b avanceVoit
 		
 END_OF_GAME
